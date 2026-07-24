@@ -4,9 +4,11 @@ import ProgressBar from "./ProgressBar";
 export default function SummaryCard({
   meals,
   goals,
+  onEditGoals,
 }: {
   meals: Meal[];
   goals: { kcal: number; protein: number; carb: number; fat: number };
+  onEditGoals: () => void;
 }) {
   const totals = meals.reduce(
     (acc, m) => ({
@@ -39,6 +41,12 @@ export default function SummaryCard({
             </span>
           </p>
         </div>
+        <button
+          onClick={onEditGoals}
+          className="text-xs font-medium text-[var(--color-accent)] shrink-0"
+        >
+          Editar meta
+        </button>
       </div>
 
       <div className="space-y-3">

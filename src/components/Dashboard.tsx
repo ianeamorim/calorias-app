@@ -9,15 +9,18 @@ import ChatBox from "./ChatBox";
 import MealList from "./MealList";
 import QuickAdd from "./QuickAdd";
 import ManualAddForm from "./ManualAddForm";
+import GoalsEditor from "./GoalsEditor";
 
 type Goals = { kcal: number; protein: number; carb: number; fat: number };
 
-export default function Dashboard({ goals }: { goals: Goals }) {
+export default function Dashboard({ initialGoals }: { initialGoals: Goals }) {
   const [date, setDate] = useState(todayISO());
   const [meals, setMeals] = useState<Meal[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [goals, setGoals] = useState<Goals>(initialGoals);
+  const [editingGoals, setEditingGoals] = useState(false);
 
   const loadDay = useCallback(async (d: string) => {
     const [mealsRes, chatRes] = await Promise.all([
@@ -126,7 +129,22 @@ export default function Dashboard({ goals }: { goals: Goals }) {
         }}
       />
 
-      <SummaryCard meals={meals} goals={goals} />
+      <SummaryCard
+        meals={meals}
+        goals={goals}
+        onEditGoals={() => setEditingGoals(true)}
+      />
+
+      {editingGoals && (
+        <GoalsEditor
+          goals={goals}
+          onClose={() => setEditingGoals(false)}
+          onSaved={(g) => {
+            setGoals(g);
+            setEditingGoals(false);
+          }}
+        />
+      )}
 
       <ChatBox messages={messages} onSend={handleSendChat} />
 

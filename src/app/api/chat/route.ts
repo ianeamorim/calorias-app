@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { sql } from "@/lib/db";
-import { DAILY_GOALS, ANTHROPIC_MODEL } from "@/lib/config";
+import { ANTHROPIC_MODEL } from "@/lib/config";
+import { getGoals } from "@/lib/goals";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -29,9 +30,9 @@ const RESPONSE_SCHEMA = {
   additionalProperties: false,
 };
 
-function systemPrompt() {
+function systemPrompt(goals: { kcal: number; protein: number; carb: number; fat: number }) {
   return `Tu és um assistente de nutrição dentro de uma app pessoal de contagem de calorias.
-A meta diária do utilizador é: ${DAILY_GOALS.kcal} kcal, ${DAILY_GOALS.protein}g proteína, ${DAILY_GOALS.carb}g hidratos, ${DAILY_GOALS.fat}g gordura.
+A meta diária do utilizador é: ${goals.kcal} kcal, ${goals.protein}g proteína, ${goals.carb}g hidratos, ${goals.fat}g gordura.
 Quando o utilizador descrever comida, estima ou pesquisa (usando a ferramenta de pesquisa na internet para produtos de marca específicos, como Mercadona, Lidl, Hacendado, ou outras marcas comerciais) as calorias e macros de cada alimento mencionado. Para comida caseira genérica, usa conhecimento geral sem pesquisar.
 Responde sempre com o formato JSON estruturado indicado. Não peças esclarecimentos, faz sempre a melhor estimativa possível.
 Se a mensagem do utilizador não for sobre comida (pergunta, cumprimento, etc.), o campo "items" deve vir vazio ([]) e "reply" responde normalmente em português, de forma simpática e breve.`;
@@ -64,10 +65,11 @@ export async function POST(req: NextRequest) {
   let parsed: ParsedReply;
 
   try {
+    const goals = await getGoals();
     const response = await anthropic.messages.create({
       model: ANTHROPIC_MODEL,
       max_tokens: 2048,
-      system: systemPrompt(),
+      system: systemPrompt(goals),
       tools: [
         { type: "web_search_20260209", name: "web_search", max_uses: 3 },
       ],

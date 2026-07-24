@@ -57,6 +57,16 @@ async function main() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS goals (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      protein NUMERIC NOT NULL,
+      carb NUMERIC NOT NULL,
+      fat NUMERIC NOT NULL,
+      CONSTRAINT goals_single_row CHECK (id = 1)
+    )
+  `;
+
   console.log("Tabelas criadas.");
 
   const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM templates`;
@@ -71,6 +81,16 @@ async function main() {
       `;
     }
     console.log(`${templates.length} templates inseridos.`);
+  }
+
+  const [existingGoals] = await sql`SELECT id FROM goals WHERE id = 1`;
+  if (existingGoals) {
+    console.log("Meta já existe — a saltar seed.");
+  } else {
+    await sql`
+      INSERT INTO goals (id, protein, carb, fat) VALUES (1, 146, 97, 53)
+    `;
+    console.log("Meta inicial inserida (146g proteína, 97g hidratos, 53g gordura).");
   }
 
   console.log("Concluído.");
