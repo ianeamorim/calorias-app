@@ -67,6 +67,16 @@ async function main() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS weekly_goals (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      protein NUMERIC,
+      carb NUMERIC,
+      fat NUMERIC,
+      CONSTRAINT weekly_goals_single_row CHECK (id = 1)
+    )
+  `;
+
   console.log("Tabelas criadas.");
 
   const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM templates`;

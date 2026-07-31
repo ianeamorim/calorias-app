@@ -6,16 +6,20 @@ type Goals = { kcal: number; protein: number; carb: number; fat: number };
 
 export default function GoalsEditor({
   goals,
+  title = "Editar meta diária",
+  endpoint = "/api/goals",
   onClose,
   onSaved,
 }: {
-  goals: Goals;
+  goals: Goals | null;
+  title?: string;
+  endpoint?: string;
   onClose: () => void;
   onSaved: (goals: Goals) => void;
 }) {
-  const [protein, setProtein] = useState(String(goals.protein));
-  const [carb, setCarb] = useState(String(goals.carb));
-  const [fat, setFat] = useState(String(goals.fat));
+  const [protein, setProtein] = useState(goals ? String(goals.protein) : "");
+  const [carb, setCarb] = useState(goals ? String(goals.carb) : "");
+  const [fat, setFat] = useState(goals ? String(goals.fat) : "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -29,7 +33,7 @@ export default function GoalsEditor({
     setSaving(true);
     setError("");
 
-    const res = await fetch("/api/goals", {
+    const res = await fetch(endpoint, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ protein: proteinNum, carb: carbNum, fat: fatNum }),
@@ -53,9 +57,7 @@ export default function GoalsEditor({
         className="w-full max-w-sm bg-[var(--color-surface)] rounded-2xl shadow-lg p-6 space-y-4"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-[var(--color-ink)]">
-            Editar meta diária
-          </h2>
+          <h2 className="text-base font-semibold text-[var(--color-ink)]">{title}</h2>
           <button
             type="button"
             onClick={onClose}
