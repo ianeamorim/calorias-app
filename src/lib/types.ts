@@ -16,6 +16,14 @@ export type Template = {
   protein: number;
   carb: number;
   fat: number;
+  category_id: number | null;
+  sort_order: number;
+};
+
+export type TemplateCategory = {
+  id: number;
+  name: string;
+  sort_order: number;
 };
 
 export type ChatMessage = {

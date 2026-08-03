@@ -77,6 +77,25 @@ async function main() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS template_categories (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0
+    )
+  `;
+
+  await sql`
+    ALTER TABLE templates
+    ADD COLUMN IF NOT EXISTS category_id INTEGER REFERENCES template_categories(id) ON DELETE SET NULL
+  `;
+  await sql`ALTER TABLE templates ADD COLUMN IF NOT EXISTS sort_order INTEGER`;
+  // Backfill: só preenche linhas que ainda não têm sort_order (seguro correr
+  // este script várias vezes — não mexe em reordenações já feitas pelo utilizador).
+  await sql`UPDATE templates SET sort_order = id WHERE sort_order IS NULL`;
+  await sql`ALTER TABLE templates ALTER COLUMN sort_order SET NOT NULL`;
+  await sql`ALTER TABLE templates ALTER COLUMN sort_order SET DEFAULT 0`;
+
   console.log("Tabelas criadas.");
 
   const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM templates`;

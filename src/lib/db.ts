@@ -31,6 +31,14 @@ export type Template = {
   protein: number;
   carb: number;
   fat: number;
+  category_id: number | null;
+  sort_order: number;
+};
+
+export type TemplateCategory = {
+  id: number;
+  name: string;
+  sort_order: number;
 };
 
 export type ChatMessage = {
@@ -65,5 +73,15 @@ export function toTemplateDTO(row: NumericRow) {
     protein: Number(row.protein),
     carb: Number(row.carb),
     fat: Number(row.fat),
+    category_id: row.category_id == null ? null : Number(row.category_id),
+    sort_order: Number(row.sort_order),
+  };
+}
+
+export function toTemplateCategoryDTO(row: NumericRow) {
+  return {
+    id: Number(row.id),
+    name: String(row.name),
+    sort_order: Number(row.sort_order),
   };
 }
