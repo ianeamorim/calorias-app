@@ -175,8 +175,6 @@ export default function Dashboard({ initialGoals }: { initialGoals: Goals }) {
             />
           )}
 
-          <ChatBox messages={messages} onSend={handleSendChat} />
-
           {loading ? (
             <p className="text-sm text-[var(--color-muted)] text-center py-4">
               A carregar...
@@ -184,6 +182,8 @@ export default function Dashboard({ initialGoals }: { initialGoals: Goals }) {
           ) : (
             <MealList meals={meals} onDelete={handleDeleteMeal} />
           )}
+
+          <ChatBox messages={messages} onSend={handleSendChat} />
 
           <QuickAdd templates={templates} onAdd={handleQuickAdd} />
 
